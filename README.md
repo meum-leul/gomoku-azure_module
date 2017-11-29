@@ -1,0 +1,1 @@
+# gomoku-azure_module
