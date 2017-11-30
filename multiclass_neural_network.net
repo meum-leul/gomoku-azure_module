@@ -1,0 +1,99 @@
+input Picture [16, 16];
+
+/* block 1 */
+hidden C1_1 [8, 16, 16] rlinear
+  from Picture convolve {
+  InputShape  = [16, 16];
+  KernelShape = [3, 3];
+  Stride  = [1, 1];
+  Padding = [true, true];
+  MapCount = 8;
+    }
+
+hidden C1_2 [8, 16, 16] rlinear
+  from C1_1 convolve {
+  InputShape  = [8, 16, 16];
+  KernelShape = [8, 3, 3];
+  Stride  = [1, 1, 1];
+  Padding = [false, true, true];
+  MapCount = 8;
+    }
+
+hidden P1 [8, 8, 8]
+  from C1_2 max pool {
+  InputShape  = [8, 16, 16];
+  KernelShape = [1, 2, 2];
+  Stride  = [1, 2, 2];
+  Padding = [false, true, true];
+    }
+
+/* block 2 */
+hidden C2_1 [16, 8, 8] rlinear
+  from P1 convolve {
+  InputShape  = [8, 8, 8];
+  KernelShape = [8, 3, 3];
+  Stride  = [1, 1, 1];
+  Padding = [false, true, true];
+  MapCount = 16;
+    }
+
+hidden C2_2 [16, 8, 8] rlinear
+  from C2_1 convolve {
+  InputShape  = [16, 8, 8];
+  KernelShape = [16, 3, 3];
+  Stride  = [1, 1, 1];
+  Padding = [false, true, true];
+  MapCount = 16;
+    }
+
+hidden P2 [16, 4, 4]
+  from C2_2 max pool {
+  InputShape  = [16, 8, 8];
+  KernelShape = [1, 2, 2];
+  Stride  = [1, 2, 2];
+  Padding = [false, true, true];
+    }
+
+
+/* block 3 */
+hidden C3_1 [32, 4, 4] rlinear
+  from P2 convolve {
+  InputShape  = [16, 4, 4];
+  KernelShape = [16, 3, 3];
+  Stride  = [1, 1, 1];
+  Padding = [false, true, true];
+  MapCount = 32;
+    }
+
+hidden C3_2 [32, 4, 4] rlinear
+  from C3_1 convolve {
+  InputShape  = [32, 4, 4];
+  KernelShape = [32, 3, 3];
+  Stride  = [1, 1, 1];
+  Padding = [false, true, true];
+  MapCount = 32;
+    }
+
+hidden C3_3 [32, 4, 4] rlinear
+  from C3_2 convolve {
+  InputShape  = [32, 4, 4];
+  KernelShape = [32, 3, 3];
+  Stride  = [1, 1, 1];
+  Padding = [false, true, true];
+  MapCount = 32;
+    }
+
+hidden P3 [32, 2, 2]
+  from C3_3 max pool {
+  InputShape  = [32, 4, 4];
+  KernelShape = [1, 2, 2];
+  Stride  = [1, 2, 2];
+  Padding = [false, true, true];
+    }
+
+
+hidden FC1 [800] rlinear
+  from P3 all;
+
+output Result [256] softmax
+    from FC1 all;
